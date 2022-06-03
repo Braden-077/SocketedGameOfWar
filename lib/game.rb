@@ -21,12 +21,22 @@ class Game
   end
 
   def winner
-    players.delete_if {|player| player.cards.length == 0} 
-    players.length == 1 ? (players.first) : nil 
+    players.reject! {|player| player.cards.count == 0}
+    return players[0] if players.length == 1
   end
 
   def round_message(winner, winning_card, loser, losing_card)
     "#{winner.name} played #{winning_card.rank} and beat #{loser.name} who played #{losing_card.rank}. #{players.first.cards.count}/#{players.last.cards.count}"
+  end
+
+  def any_nil_cards?(card1, card2, tied_winnings=[])
+    if card1.nil?
+      players.last.take(card2, *tied_winnings)
+      players.last.cards.reject!{|card| card.nil?}
+    elsif card2.nil? 
+      players.first.take(card1, *tied_winnings)
+      players.first.cards.reject! {|card| card.nil?}
+    end
   end
 
   def give_winnings(player, card1, card2, tied_winnings=[], loser)
@@ -36,7 +46,7 @@ class Game
 
   def play_round(tied_winnings = [])
     card1, card2 = players.first.play, players.last.play
-    return if card1.nil? || card2.nil?
+    return any_nil_cards?(card1, card2, tied_winnings) if card1.nil? || card2.nil?
     if card1.value > card2.value
       give_winnings(players.first, card1, card2, tied_winnings, players.last)
     elsif card1.value < card2.value
