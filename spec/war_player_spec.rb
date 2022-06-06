@@ -7,7 +7,7 @@ require 'war_player'
 describe WarPlayer do
   describe 'basic funtions of creation' do
     it 'initializes without error' do
-      expect { WarPlayer.new([Card.new('J', 'D'), Card.new('A', 'H')]) }.not_to raise_error
+      expect { WarPlayer.new('', [Card.new('J', 'D'), Card.new('A', 'H')]) }.not_to raise_error
     end
     
     it 'defaults cards to empty list if none are provided' do
@@ -17,7 +17,7 @@ describe WarPlayer do
     
     it 'has a list of cards' do
       cards = [Card.new('J', 'D'), Card.new('A', 'H')]
-      player = WarPlayer.new(cards)
+      player = WarPlayer.new('', cards)
       expect(player.cards).to eq cards
     end
   end
@@ -25,7 +25,7 @@ describe WarPlayer do
   describe '#play' do
     it 'expects a player to put out their first card' do
       cards = [Card.new('A', 'S'), Card.new('A', 'C')]
-      player = WarPlayer.new(cards)
+      player = WarPlayer.new('', cards)
       card = player.play
       expect(player.cards.length).to eq 1
       expect(card).to eq Card.new('A', 'S')
@@ -39,7 +39,7 @@ describe WarPlayer do
     end
 
     it 'describes the value when no card is present' do
-      player = WarPlayer.new([Card.new('A', 'S')])
+      player = WarPlayer.new('', [Card.new('A', 'S')])
       expect(player.cards.length).to eq 1
       expect(player.play).to eq Card.new('A', 'S')
       player.play
@@ -51,7 +51,7 @@ describe WarPlayer do
   describe '#take' do
     it 'adds the provided card to the hand' do
       cards = [Card.new('Q', 'D'), Card.new('7', 'S'), Card.new('9', 'C')]
-      player = WarPlayer.new([cards[0], cards[1]])
+      player = WarPlayer.new('', [cards[0], cards[1]])
       player.take(cards[2])
       expect(player.cards).to eq cards
     end

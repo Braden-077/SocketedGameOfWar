@@ -30,7 +30,7 @@ describe Game do
 
   describe '#play_round' do
     it 'makes sure players don\'t have the same amount of cards as when dealt' do
-      game = Game.new([WarPlayer.new([Card.new('K', 'S')], 'Josh'), WarPlayer.new([Card.new('A', 'S')], 'Braden')])
+      game = Game.new([WarPlayer.new('Josh', [Card.new('K', 'S')]), WarPlayer.new('Braden', [Card.new('A', 'S')])])
       game.play_round
       expect(game.winner.name).to eq 'Braden'
       expect(game.winner.cards.length).to eq 2
@@ -39,20 +39,20 @@ describe Game do
 
   describe '#winner' do 
     it 'gives us the expected winner\'s name back' do
-      game = Game.new([WarPlayer.new([Card.new('K', 'S')], 'Josh'), WarPlayer.new([Card.new('A', 'S')], 'Braden')])
+      game = Game.new([WarPlayer.new('Josh', [Card.new('K', 'S')]), WarPlayer.new('Braden', [Card.new('A', 'S')])])
       game.play_round
       expect(game.winner.name).to eq 'Braden'
     end
 
     it 'gives player 2 their cards back if player 1 has no more cards left' do
-      game = Game.new([WarPlayer.new([], 'Josh'), WarPlayer.new([Card.new('A', 'S')], 'Braden')])
+      game = Game.new([WarPlayer.new('Josh', []), WarPlayer.new('Braden', [Card.new('A', 'S')])])
       game.play_round
       expect(game.winner.name).to eq 'Braden'
       expect(game.winner.cards.count).to eq 1
     end
 
     it 'gives player 1 their cards back if player 2 has no more cards left' do
-      game = Game.new([WarPlayer.new([Card.new('A', 'S')], 'Josh'), WarPlayer.new([], 'Braden')])
+      game = Game.new([WarPlayer.new('Josh',[Card.new('A', 'S')]), WarPlayer.new('Braden', [])])
       game.play_round
       expect(game.winner.name).to eq 'Josh'
       expect(game.winner.cards.count).to eq 1

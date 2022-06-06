@@ -1,9 +1,9 @@
 # frozen_string_literal: true 
 class WarPlayer
-  NAMES = ['Andrew', 'William', 'Josh', 'Braden', 'Caleb', 'Jeremy']
+  NAMES = ['William', 'Josh', 'Braden', 'Caleb', 'Jeremy']
 
   attr_accessor :cards, :name
-  def initialize(cards = [], name = NAMES.sample)
+  def initialize(name = NAMES.sample, cards = [])
     @name = name
     @cards = cards
   end
