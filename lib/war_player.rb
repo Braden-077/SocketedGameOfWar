@@ -3,7 +3,7 @@ class WarPlayer
   NAMES = ['William', 'Josh', 'Braden', 'Caleb', 'Jeremy']
 
   attr_accessor :cards, :name
-  def initialize(name = NAMES.sample, cards = [])
+  def initialize(name = '', cards = [])
     @name = name
     @cards = cards
   end

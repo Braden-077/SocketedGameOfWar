@@ -1,3 +1,5 @@
+# frozen_string_literal: true 
+
 require 'socket'
 require 'war_socket_server'
 require 'pry'
@@ -7,11 +9,12 @@ class MockWarSocketClient
 
   def initialize(port)
     @socket = TCPSocket.new('localhost', port)
-    sleep(0.00000001)
+    sleep(0.01)
   end
 
   def provide_input(text)
     @socket.puts(text)
+    sleep(0.01)
   end
 
   def capture_output(delay=0.1)
@@ -47,49 +50,88 @@ describe WarSocketServer do
     @server.start
     client1 = MockWarSocketClient.new(@server.port_number)
     @clients.push(client1)
-    @server.accept_new_client("Player 1")
+    @server.accept_new_client
     @server.create_game_if_possible
     expect(@server.games.count).to be 0
     client2 = MockWarSocketClient.new(@server.port_number)
     @clients.push(client2)
-    @server.accept_new_client("Player 2")
+    @server.accept_new_client
     @server.create_game_if_possible
     expect(@server.games.count).to be 1
   end
 
-  it 'sends a message from the server to the client when a successful connection has occured' do
+  it 'sends a message from the server to the client when a successful connection has occured'  do
     @server.start 
     client1 = MockWarSocketClient.new(@server.port_number)
     @clients.push(client1)
-    @server.accept_new_client('Player 1')
+    @server.accept_new_client
     client1.capture_output
-    expect(client1.output.chomp).to eq "You've connected, Player 1!"
-  end
-
-  it 'Sends a message to clients to ask if they are ready' do
-    @server.start
-    client1, client2 = MockWarSocketClient.new(@server.port_number), MockWarSocketClient.new(@server.port_number)
-    @clients.push(client1, client2)
-    @server.accept_new_client('Player 1')
-    @server.accept_new_client('Player 2')
-    @server.create_game_if_possible
-    @server.ask_players_ready
-    expect(client1.capture_output.strip).to end_with 'Players, Ready?'
-    expect(client2.capture_output.strip).to end_with 'Players, Ready?'
+    expect(client1.output.chomp).to include "You've connected!"
   end
 
   it 'tests for capturing player input' do
     @server.start 
     client1 = MockWarSocketClient.new(@server.port_number)
     @clients.push(client1)
-    @server.accept_new_client('Player 1')
+    @server.accept_new_client
     client1.provide_input('What I give it')
     message = @server.capture_input(@server.clients.first)
     expect(message).to eq 'What I give it'
   end
 
 
+  it 'prompts a player for their name and associates it with the client' do
+    @server.start
+    client1 = MockWarSocketClient.new(@server.port_number)
+    # @clients.push(client1)
+    @server.accept_new_client
+    # client1.capture_output
+    expect(client1.capture_output.strip).to end_with 'Please enter your name:'
+    client1.provide_input('Braden')
+    @server.get_player_name
+    expect(@server.player_names.first).to eq 'Braden'
+  end
 
+  it 'allows for the second user to input their name and still be refered to by name' do
+    @server.start
+    client1, client2 = MockWarSocketClient.new(@server.port_number), MockWarSocketClient.new(@server.port_number)
+    @server.accept_new_client
+    @server.accept_new_client
+    client2.provide_input('Caleb')
+    @server.get_player_name
+    client1.provide_input('Braden')
+    @server.get_player_name
+    expect(@server.player_names.first).to eq 'Braden'
+    expect(@server.player_names.last).to eq 'Caleb'
+  end
+
+  it 'allows for the second user to input their name and still be refered to by name', :focus do
+    @server.start
+    client1, client2 = MockWarSocketClient.new(@server.port_number), MockWarSocketClient.new(@server.port_number)
+    @server.accept_new_client
+    @server.accept_new_client
+    client2.provide_input('Caleb')
+    @server.get_player_name
+    client1.provide_input('Braden')
+    @server.get_player_name
+    expect(@server.player_names.first).to eq 'Braden'
+    expect(@server.player_names.last).to eq 'Caleb'
+  end
+
+  it 'takes the provided names and creates a game using them' do
+    @server.start
+    client1, client2 = MockWarSocketClient.new(@server.port_number), MockWarSocketClient.new(@server.port_number)
+    @server.accept_new_client
+    @server.accept_new_client
+    client2.provide_input('Caleb')
+    @server.get_player_name
+    client1.provide_input('Braden')
+    @server.get_player_name
+    @server.create_game_if_possible
+    expect(@server.games.first.game.players.count).to eq 2
+    expect(@server.games.first.game.players.first.name).to eq 'Braden'
+    expect(@server.games.first.game.players.last.name).to eq 'Caleb'
+  end
 
 
   # Add more tests to make sure the game is being played
